@@ -103,8 +103,8 @@ end
       SecondaryText = Color3.fromRGB(122, 122, 122),
       TertiaryText = Color3.fromRGB(158, 158, 158),
       Hovering = Color3.fromRGB(56, 53, 56),
-      Accent = Color3.fromRGB(100, 190, 31),
-      DarkerAccent = Color3.fromRGB(87, 167, 26),
+      Accent = Color3.fromRGB(207, 14, 200),
+      DarkerAccent = Color3.fromRGB(207, 14, 200),
       AccentText = Color3.fromRGB(235, 235, 235)
   }
   --//
