@@ -993,7 +993,7 @@ end
 
 
 
-function AvatarCheat:Input(Info)
+function SectionTable:Input(Info)
     Info.Text = Info.Text or "Enter Value:"
     Info.Default = Info.Default or ""
     Info.Callback = Info.Callback or function() end
