@@ -1102,7 +1102,7 @@ function SectionTable:ColorPicker(Info)
 
     local ColorSelectionFrame = Utilities:Create("Frame", {
         Name = "ColorSelectionFrame",
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = Color3.fromRGB(42, 40, 42),
         BorderSizePixel = 1,
         Position = UDim2.new(0, 0, 1, 5),
         Size = UDim2.new(1, 0, 0, 150),
