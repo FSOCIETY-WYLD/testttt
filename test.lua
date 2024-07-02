@@ -1,4 +1,4 @@
-  local library = {
+local library = {
     flags = {}
   }
   library.Flags = library.flags
@@ -103,12 +103,23 @@ end
       SecondaryText = Color3.fromRGB(122, 122, 122),
       TertiaryText = Color3.fromRGB(158, 158, 158),
       Hovering = Color3.fromRGB(56, 53, 56),
-      Accent = Color3.fromRGB(207, 14, 200),
-      DarkerAccent = Color3.fromRGB(207, 14, 200),
+      Accent = Color3.fromRGB(100, 190, 31),
+      DarkerAccent = Color3.fromRGB(87, 167, 26),
       AccentText = Color3.fromRGB(235, 235, 235)
   }
   --//
   
+
+
+
+
+
+
+
+
+
+
+
   function library:Window(WindowArgs)
   WindowArgs.Text = WindowArgs.Text or "Window"
   
@@ -345,14 +356,14 @@ end
     })
   end
 
-if syn and syn.protect_gui then
+  if syn.protect_gui then
     syn.protect_gui(Window)
     Window.Parent = CoreGui
-elseif gethui then
+  elseif gethui then
     Window.Parent = gethui()
-else
+  else
     Window.Parent = CoreGui
-end
+  end
 
   local ResizeButton = Window.Main.Bottom.ResizeIcon.ResizeButton
   local TabContainer = Window.Main.Topbar.TabContainer
@@ -586,6 +597,13 @@ end
       TabTable:Select()
   end)
   
+
+
+
+
+
+
+
   function TabTable:Section(SectionArgs)
   SectionArgs.Text = SectionArgs.Text or "Section"
   SectionArgs.Side = SectionArgs.Side or "Left"
@@ -1262,6 +1280,62 @@ end
 
     return DropdownTable
   end
+
+
+function SectionTable:Input(Info)
+    Info.Text = Info.Text or "Enter Value:"
+    Info.Default = Info.Default or ""
+    Info.Callback = Info.Callback or function() end
+
+    local InputTable = {}
+    InputTable.Index = DropIndex
+
+    local InputFrame = Utilities:Create("Frame", {
+        Name = "InputFrame",
+        BackgroundTransparency = 1,
+        Parent = SectionContainer,
+        Size = UDim2.new(0, 286, 0, 21)
+    }, {
+        Utilities:Create("TextLabel", {
+            Name = "InputLabel",
+            BackgroundTransparency = 1,
+            Text = Info.Text,
+            Size = UDim2.new(.6, 3, 0, 14),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 13,
+            TextColor3 = Colors.TertiaryText,
+            Font = Enum.Font.SourceSansBold,
+            ZIndex = InputTable.Index
+        }),
+        Utilities:Create("TextBox", {
+            Name = "InputBox",
+            BackgroundColor3 = Colors.Secondary,
+            BorderSizePixel = 0,
+            Size = UDim2.new(.4, -3, 0, 14),
+            Position = UDim2.new(.6, 3, 0, 0),
+            Text = Info.Default,
+            TextColor3 = Colors.PrimaryText,
+            TextSize = 13,
+            Font = Enum.Font.SourceSans,
+            ClearTextOnFocus = false,
+            ZIndex = InputTable.Index
+        })
+    })
+
+    InputFrame.InputBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local enteredValue = InputFrame.InputBox.Text
+            Info.Callback(enteredValue)
+        end
+    end)
+
+    DropIndex = DropIndex - 1
+
+    return InputTable
+end
+
+
+
 
   return SectionTable
   end
