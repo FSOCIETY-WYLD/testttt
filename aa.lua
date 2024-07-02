@@ -1058,7 +1058,6 @@ function SectionTable:Input(Info)
 
     return InputTable
 end
-
 function SectionTable:ColorPicker(Info)
     -- Standardwerte setzen, falls nicht angegeben
     Info.Text = Info.Text or "Pick a Color"
@@ -1098,13 +1097,12 @@ function SectionTable:ColorPicker(Info)
     end
 
     ColorPickerBox.MouseButton1Click:Connect(function()
-        local newColor = game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui").Pickcolor.Color
+        local newColor = game.Players.LocalPlayer.PlayerGui.ScreenGui.Pickcolor.Color
         SelectColor(newColor)
     end)
 
     return ColorPickerFrame
 end
-
 
 
 
