@@ -1057,7 +1057,7 @@ function SectionTable:Input(Info)
     return InputTable
 end
 
-function AvatarCheat:ColorPicker(Info)
+function SectionTable:ColorPicker(Info)
     -- Standardwerte setzen, falls nicht angegeben
     Info.Text = Info.Text or "Pick a Color"
     Info.Default = Info.Default or Color3.fromRGB(255, 255, 255)
