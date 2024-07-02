@@ -1029,9 +1029,20 @@ function SectionTable:Input(Info)
             TextSize = 13,
             Font = Enum.Font.SourceSans,
             ClearTextOnFocus = false,
+            TextWrapped = true,  -- Text wird automatisch umgebrochen, um innerhalb der TextBox zu bleiben
             ZIndex = InputTable.Index
         })
     })
+
+    local function updateSize()
+        local textBounds = InputFrame.InputBox.TextBounds
+        local newHeight = math.max(14, textBounds.Y)
+        InputFrame.InputBox.Size = UDim2.new(.4, -3, 0, newHeight)
+    end
+
+    InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
+        updateSize()
+    end)
 
     InputFrame.InputBox.FocusLost:Connect(function(enterPressed)
         if enterPressed then
@@ -1040,14 +1051,69 @@ function SectionTable:Input(Info)
         end
     end)
 
+    updateSize()
     DropIndex = DropIndex - 1
 
     return InputTable
 end
 
 
+function SectionTable:ColorPicker(Info)
+    Info.Text = Info.Text or "Pick a Color:"
+    Info.Default = Info.Default or Color3.fromRGB(255, 255, 255) -- Default color
+    Info.Callback = Info.Callback or function() end
 
+    local ColorPickerTable = {}
+    ColorPickerTable.Index = DropIndex
 
+    local ColorPickerFrame = Utilities:Create("Frame", {
+        Name = "ColorPickerFrame",
+        BackgroundTransparency = 1,
+        Parent = SectionContainer,
+        Size = UDim2.new(0, 286, 0, 21)
+    }, {
+        Utilities:Create("TextLabel", {
+            Name = "ColorPickerLabel",
+            BackgroundTransparency = 1,
+            Text = Info.Text,
+            Size = UDim2.new(.6, 3, 0, 14),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 13,
+            TextColor3 = Colors.TertiaryText,
+            Font = Enum.Font.SourceSansBold,
+            ZIndex = ColorPickerTable.Index
+        }),
+        Utilities:Create("TextButton", {
+            Name = "ColorPickerButton",
+            BackgroundColor3 = Info.Default,
+            BorderSizePixel = 0,
+            Size = UDim2.new(.4, -3, 0, 14),
+            Position = UDim2.new(.6, 3, 0, 0),
+            Text = "",
+            ZIndex = ColorPickerTable.Index
+        })
+    })
+
+    local function openColorPicker()
+        -- Open a color picker dialog or GUI
+        -- For simplicity, let's assume it sets a variable `selectedColor`
+        local selectedColor = Color3.new(1, 0, 0)  -- Replace with actual color selection logic
+
+        -- Update button color
+        ColorPickerFrame.ColorPickerButton.BackgroundColor3 = selectedColor
+
+        -- Callback function with selected color
+        Info.Callback(selectedColor)
+    end
+
+    ColorPickerFrame.ColorPickerButton.MouseButton1Click:Connect(function()
+        openColorPicker()
+    end)
+
+    DropIndex = DropIndex - 1
+
+    return ColorPickerTable
+end
 
 
 
