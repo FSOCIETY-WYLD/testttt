@@ -1,4 +1,6 @@
-  local library = {
+print("hello") 
+
+ local library = {
     flags = {}
   }
   library.Flags = library.flags
