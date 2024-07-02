@@ -988,6 +988,83 @@ end
     return LabelTable
   end
 
+
+
+
+
+
+function AvatarCheat:Input(Info)
+    Info.Text = Info.Text or "Enter Value:"
+    Info.Default = Info.Default or ""
+    Info.Callback = Info.Callback or function() end
+
+    local InputTable = {}
+    InputTable.Index = DropIndex
+
+    local InputFrame = Utilities:Create("Frame", {
+        Name = "InputFrame",
+        BackgroundTransparency = 1,
+        Parent = SectionContainer,
+        Size = UDim2.new(0, 286, 0, 21)
+    }, {
+        Utilities:Create("TextLabel", {
+            Name = "InputLabel",
+            BackgroundTransparency = 1,
+            Text = Info.Text,
+            Size = UDim2.new(.6, 3, 0, 14),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 13,
+            TextColor3 = Colors.TertiaryText,
+            Font = Enum.Font.SourceSansBold,
+            ZIndex = InputTable.Index
+        }),
+        Utilities:Create("TextBox", {
+            Name = "InputBox",
+            BackgroundColor3 = Colors.Secondary,
+            BorderSizePixel = 0,
+            Size = UDim2.new(.4, -3, 0, 14),
+            Position = UDim2.new(.6, 3, 0, 0),
+            Text = Info.Default,
+            TextColor3 = Colors.PrimaryText,
+            TextSize = 13,
+            Font = Enum.Font.SourceSans,
+            ClearTextOnFocus = false,
+            ZIndex = InputTable.Index
+        })
+    })
+
+    InputFrame.InputBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local enteredValue = InputFrame.InputBox.Text
+            Info.Callback(enteredValue)
+        end
+    end)
+
+    DropIndex = DropIndex - 1
+
+    return InputTable
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
   function SectionTable:Dropdown(Info)
     Info.Text = Info.Text or "Dropdown"
     Info.Flag = Info.Flag or nil
