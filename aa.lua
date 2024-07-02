@@ -1100,28 +1100,66 @@ function SectionTable:ColorPicker(Info)
         })
     })
 
-    local function openColorPicker()
-        -- Hier würde die Logik für das Öffnen des Color Pickers implementiert werden
-        -- Zum Beispiel ein Popup-Fenster oder eine benutzerdefinierte GUI
-        -- In diesem Beispiel wird stattdessen eine voreingestellte Farbe verwendet
-        local selectedColor = Color3.new(1, 0, 0)  -- Beispiel für eine ausgewählte Farbe
+    local ColorSelectionFrame = Utilities:Create("Frame", {
+        Name = "ColorSelectionFrame",
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BorderSizePixel = 1,
+        Position = UDim2.new(0, 0, 1, 5),
+        Size = UDim2.new(1, 0, 0, 150),
+        Visible = false,
+        ZIndex = ColorPickerTable.Index
+    })
 
-        -- Farbe des Buttons aktualisieren
-        ColorPickerFrame.ColorPickerButton.BackgroundColor3 = selectedColor
+    local ColorPalette = {
+        Color3.fromRGB(255, 0, 0),    -- Red
+        Color3.fromRGB(0, 255, 0),    -- Green
+        Color3.fromRGB(0, 0, 255),    -- Blue
+        Color3.fromRGB(255, 255, 0),  -- Yellow
+        Color3.fromRGB(255, 0, 255),  -- Magenta
+        Color3.fromRGB(0, 255, 255),  -- Cyan
+        Color3.fromRGB(128, 0, 128),  -- Purple
+        Color3.fromRGB(255, 165, 0),  -- Orange
+        Color3.fromRGB(0, 0, 0),      -- Black
+        Color3.fromRGB(255, 255, 255) -- White
+    }
 
-        -- Callback-Funktion aufrufen und die ausgewählte Farbe übergeben
-        Info.Callback(selectedColor)
+    local ColorButtons = {}
+
+    local function createColorButton(color)
+        local button = Utilities:Create("TextButton", {
+            Name = "ColorButton",
+            BackgroundColor3 = color,
+            BorderSizePixel = 0,
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(0, 10 + (#ColorButtons % 8) * 30, 0, 10 + math.floor(#ColorButtons / 8) * 30),
+            Text = "",
+            Parent = ColorSelectionFrame,
+            ZIndex = ColorPickerTable.Index
+        })
+        table.insert(ColorButtons, button)
+
+        button.MouseButton1Click:Connect(function()
+            Info.Callback(color)
+            ColorPickerFrame.ColorPickerButton.BackgroundColor3 = color
+            ColorSelectionFrame.Visible = false
+        end)
+    end
+
+    -- Erstelle Farbauswahlbuttons für jede Farbe in der Palette
+    for _, color in ipairs(ColorPalette) do
+        createColorButton(color)
     end
 
     ColorPickerFrame.ColorPickerButton.MouseButton1Click:Connect(function()
-        openColorPicker()
+        ColorSelectionFrame.Visible = not ColorSelectionFrame.Visible
     end)
+
+    ColorSelectionFrame.Parent = ColorPickerFrame
 
     DropIndex = DropIndex - 1
 
     return ColorPickerTable
 end
-
 
 
 
