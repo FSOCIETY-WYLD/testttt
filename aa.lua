@@ -1,4 +1,4 @@
-print("hello3") 
+print("hello4") 
 
  local library = {
     flags = {}
@@ -1058,54 +1058,69 @@ function SectionTable:Input(Info)
 
     return InputTable
 end
+
+
+
+
+			
+
 function SectionTable:ColorPicker(Info)
-    -- Standardwerte setzen, falls nicht angegeben
-    Info.Text = Info.Text or "Pick a Color"
+    Info.Text = Info.Text or "Pick a Color:"
     Info.Default = Info.Default or Color3.fromRGB(255, 255, 255)
+    Info.Callback = Info.Callback or function() end
 
-    -- UI-Elemente erstellen
-    local ColorPickerFrame = Instance.new("Frame")
-    ColorPickerFrame.Name = "ColorPickerFrame"
-    ColorPickerFrame.Size = UDim2.new(0, 200, 0, 100)
-    ColorPickerFrame.BackgroundColor3 = Color3.new(0.9, 0.9, 0.9)
-    ColorPickerFrame.BorderSizePixel = 1
-    ColorPickerFrame.Parent = game.Players.LocalPlayer.PlayerGui.ScreenGui -- Hier entsprechend anpassen
+    local ColorPickerTable = {}
+    ColorPickerTable.Index = DropIndex
 
-    local ColorPickerText = Instance.new("TextLabel")
-    ColorPickerText.Name = "ColorPickerText"
-    ColorPickerText.Size = UDim2.new(1, 0, 0, 20)
-    ColorPickerText.Position = UDim2.new(0, 0, 0, 0)
-    ColorPickerText.BackgroundTransparency = 1
-    ColorPickerText.Text = Info.Text
-    ColorPickerText.TextColor3 = Color3.new(0, 0, 0)
-    ColorPickerText.TextSize = 14
-    ColorPickerText.Font = Enum.Font.SourceSansBold
-    ColorPickerText.Parent = ColorPickerFrame
+    local ColorPickerFrame = Utilities:Create("Frame", {
+        Name = "ColorPickerFrame",
+        BackgroundTransparency = 1,
+        Parent = SectionContainer,  -- Hier sollte die Elterninstanz festgelegt sein, z.B. eine UI Container
+        Size = UDim2.new(0, 286, 0, 21)
+    }, {
+        Utilities:Create("TextLabel", {
+            Name = "ColorPickerLabel",
+            BackgroundTransparency = 1,
+            Text = Info.Text,
+            Size = UDim2.new(.6, 3, 0, 14),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 13,
+            TextColor3 = Colors.TertiaryText,
+            Font = Enum.Font.SourceSansBold,
+            ZIndex = ColorPickerTable.Index
+        }),
+        Utilities:Create("TextButton", {
+            Name = "ColorPickerButton",
+            BackgroundColor3 = Info.Default,
+            BorderSizePixel = 0,
+            Size = UDim2.new(.4, -3, 0, 14),
+            Position = UDim2.new(.6, 3, 0, 0),
+            Text = "",
+            ZIndex = ColorPickerTable.Index
+        })
+    })
 
-    local ColorPickerBox = Instance.new("TextButton")
-    ColorPickerBox.Name = "ColorPickerBox"
-    ColorPickerBox.Size = UDim2.new(1, -20, 0, 30)
-    ColorPickerBox.Position = UDim2.new(0, 10, 0, 30)
-    ColorPickerBox.AutoButtonColor = false
-    ColorPickerBox.Text = ""
-    ColorPickerBox.BackgroundColor3 = Info.Default
-    ColorPickerBox.Parent = ColorPickerFrame
+    local function openColorPicker()
+        -- Hier würde die Logik für das Öffnen des Color Pickers implementiert werden
+        -- Zum Beispiel ein Popup-Fenster oder eine benutzerdefinierte GUI
+        -- In diesem Beispiel wird stattdessen eine voreingestellte Farbe verwendet
+        local selectedColor = Color3.new(1, 0, 0)  -- Beispiel für eine ausgewählte Farbe
 
-    local function SelectColor(color)
-        Info.Callback(color)
-        ColorPickerFrame:Destroy()
+        -- Farbe des Buttons aktualisieren
+        ColorPickerFrame.ColorPickerButton.BackgroundColor3 = selectedColor
+
+        -- Callback-Funktion aufrufen und die ausgewählte Farbe übergeben
+        Info.Callback(selectedColor)
     end
 
-    ColorPickerBox.MouseButton1Click:Connect(function()
-        local newColor = game.Players.LocalPlayer.PlayerGui.ScreenGui.Pickcolor.Color
-        SelectColor(newColor)
+    ColorPickerFrame.ColorPickerButton.MouseButton1Click:Connect(function()
+        openColorPicker()
     end)
 
-    return ColorPickerFrame
+    DropIndex = DropIndex - 1
+
+    return ColorPickerTable
 end
-
-
-
 
 
 
