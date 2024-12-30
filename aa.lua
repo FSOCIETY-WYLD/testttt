@@ -95,7 +95,7 @@ end
 --//
 
 --// Colors --//
-local folderPath = "TWWLEANUI"
+local folderPath = "TwwLean/Resources"
 local fileName = "texture.txt"
 local filePath = folderPath .. "/" .. fileName
 
