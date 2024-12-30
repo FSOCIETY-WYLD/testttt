@@ -1,231 +1,169 @@
 print("hello6") 
 
-local library = {
+ local library = {
     flags = {}
-}
-library.Flags = library.flags
+  }
+  library.Flags = library.flags
+  
+  --// Dependences --//
+  local CoreGui = game:GetService("CoreGui")
+  local TweenService = game:GetService("TweenService")
+  local UserInputService = game:GetService("UserInputService")
+  local RunService = game:GetService("RunService")
+  
+  local ViewportSize = workspace.CurrentCamera.ViewportSize
+  
+  local Mouse = game.Players.LocalPlayer:GetMouse()
+  
+  local Utilities = {}
 
---// Dependences --//
-local CoreGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+  --// Compatibility //--
+  local request = syn and syn.request or http and http.request or http_request or request or httprequest
+  local getcustomasset = getcustomasset or getsynasset
+  local isfolder = isfolder or syn_isfolder or is_folder
+  local makefolder = makefolder or make_folder or createfolder or create_folder
+  --//
 
-local ViewportSize = workspace.CurrentCamera.ViewportSize
+  local DropIndex = 9999
+  
+  function Utilities:Create(Inst, Properties, Childs)
+  local Instance = Instance.new(Inst)
+  local Properties = Properties or {}
+  local Childs = Childs or {}
+  
+  local BlacklistedProps = {
+      BorderSizePixel = 0,
+      Text = "",
+      BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+  }
+  
+  for blprop, v in pairs(BlacklistedProps) do
+      pcall(function()
+          Instance[blprop] = v
+      end)
+  end
+  
+  for prop, v in pairs(Properties) do
+      Instance[prop] = v
+  end
+  
+  for _, child in pairs(Childs) do
+      child.Parent = Instance
+  end
+  
+  return Instance
+  end
 
-local Mouse = game.Players.LocalPlayer:GetMouse()
-
-local Utilities = {}
-
---// Compatibility //--
-local request = syn and syn.request or http and http.request or http_request or request or httprequest
-local getcustomasset = getcustomasset or getsynasset
-local isfolder = isfolder or syn_isfolder or is_folder
-local makefolder = makefolder or make_folder or createfolder or create_folder
---//
-
-local DropIndex = 9999
-
-function Utilities:Create(Inst, Properties, Childs)
-local Instance = Instance.new(Inst)
-local Properties = Properties or {}
-local Childs = Childs or {}
-
-local BlacklistedProps = {
-    BorderSizePixel = 0,
-    Text = "",
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-}
-
-for blprop, v in pairs(BlacklistedProps) do
-    pcall(function()
-        Instance[blprop] = v
-    end)
-end
-
-for prop, v in pairs(Properties) do
-    Instance[prop] = v
-end
-
-for _, child in pairs(Childs) do
-    child.Parent = Instance
-end
-
-return Instance
-end
-
-function Utilities:Round(Number, Increment)
+  function Utilities:Round(Number, Increment)
     Increment = 1 / Increment
 
     return math.round(Number * Increment) / Increment
 end
+  
+  function Utilities:Tween(Inst, Speed, Properties, Style, Direction)
+  local Instance = Inst or error("#1 argument: instance expected.")
+  local Speed = Speed or .125
+  local Properties = typeof(Properties) == "table" and Properties or error("#3 argument: table expected, got: "..typeof(Properties))
+  local Style = Style or Enum.EasingStyle.Linear
+  local Direction = Direction or Enum.EasingDirection.Out
+  
+  local Tween = TweenService:Create(Instance, TweenInfo.new(Speed, Style, Direction), Properties)
+  Tween:Play()
+  
+  return Tween
+  end
 
-function Utilities:Tween(Inst, Speed, Properties, Style, Direction)
-local Instance = Inst or error("#1 argument: instance expected.")
-local Speed = Speed or .125
-local Properties = typeof(Properties) == "table" and Properties or error("#3 argument: table expected, got: "..typeof(Properties))
-local Style = Style or Enum.EasingStyle.Linear
-local Direction = Direction or Enum.EasingDirection.Out
+  function Utilities:GetXY(GuiObject)
+	local Max, May = GuiObject.AbsoluteSize.X, GuiObject.AbsoluteSize.Y
+	local Px, Py = math.clamp(Mouse.X - GuiObject.AbsolutePosition.X, 0, Max), math.clamp(Mouse.Y - GuiObject.AbsolutePosition.Y, 0, May)
+	return Px/Max, Py/May
+  end
 
-local Tween = TweenService:Create(Instance, TweenInfo.new(Speed, Style, Direction), Properties)
-Tween:Play()
+  function Utilities:GetMouse()
+	return Vector2.new(UserInputService:GetMouseLocation().X + 1, UserInputService:GetMouseLocation().Y - 35)
+  end
 
-return Tween
-end
-
-function Utilities:GetXY(GuiObject)
-    local Max, May = GuiObject.AbsoluteSize.X, GuiObject.AbsoluteSize.Y
-    local Px, Py = math.clamp(Mouse.X - GuiObject.AbsolutePosition.X, 0, Max), math.clamp(Mouse.Y - GuiObject.AbsolutePosition.Y, 0, May)
-    return Px/Max, Py/May
-end
-
-function Utilities:GetMouse()
-    return Vector2.new(UserInputService:GetMouseLocation().X + 1, UserInputService:GetMouseLocation().Y - 35)
-end
-
-if not isfolder("TWWLEANUI") then
-    makefolder("TWWLEANUI")
+  if not isfolder("PPHUD") then
+    makefolder("PPHUD")
 
     local Arrow = request({Url = "https://raw.githubusercontent.com/Rain-Design/PPHUD/main/Dropdown.png", Method = "GET"})
     writefile("PPHUD/Arrow.png", Arrow.Body)
 
     local Resize = request({Url = "https://raw.githubusercontent.com/Rain-Design/PPHUD/main/resize.png", Method = "GET"})
     writefile("PPHUD/Resize.png", Resize.Body)
-end
---//
-
---// Colors --//
-local folderPath = "TwwLean/Resources"
-local fileName = "texture.txt"
-local filePath = folderPath .. "/" .. fileName
-
-local function defaultColors()
-    return {
-        Primary = Color3.fromRGB(27, 25, 27),
-        Secondary = Color3.fromRGB(42, 40, 42),
-        Tertiary = Color3.fromRGB(74, 73, 74),
-        Divider = Color3.fromRGB(46, 45, 46),
-        AccentDivider = Color3.fromRGB(54, 54, 54),
-        PrimaryText = Color3.fromRGB(211, 211, 211),
-        SecondaryText = Color3.fromRGB(122, 122, 122),
-        TertiaryText = Color3.fromRGB(158, 158, 158),
-        Hovering = Color3.fromRGB(56, 53, 56),
-        Accent = Color3.fromRGB(207, 14, 200),
-        DarkerAccent = Color3.fromRGB(207, 14, 200),
-        AccentText = Color3.fromRGB(235, 235, 235)
-    }
-end
-
-local Colors = defaultColors()
-
-print("Checking for folder: " .. folderPath)
-if isfolder(folderPath) then
-    print("Folder exists.")
-    print("Checking for file: " .. filePath)
-    if isfile(filePath) then
-        print("File exists.")
-        local fileContent = readfile(filePath)
-        print("Inhalt der Datei 'texture.txt':")
-        print(fileContent)
-        
-        local function loadColorsFromString(code)
-            local success, result = pcall(function()
-                local func, err = loadstring(code)
-                if not func then
-                    error("Fehler beim Kompilieren des Lua-Codes: " .. tostring(err))
-                end
-                return func()
-            end)
-
-            if success and type(result) == "table" then
-                for key, value in pairs(result) do
-                    if typeof(value) ~= "Color3" then
-                        error("Ungültiger Wert für Farbe: " .. tostring(key))
-                    end
-                end
-                return result
-            else
-                error("Fehler beim Laden der Farben: " .. tostring(result))
-            end
-        end
-
-        local success, loadedColorsOrError = pcall(loadColorsFromString, fileContent)
-
-        if success and type(loadedColorsOrError) == "table" then
-            Colors = loadedColorsOrError
-            print("Farben erfolgreich geladen:")
-            for name, color in pairs(Colors) do
-                print(name .. ": " .. tostring(color))
-            end
-        else
-            print("Fehler beim Laden der Farben aus der Datei: " .. tostring(loadedColorsOrError))
-            Colors = defaultColors() -- Standardfarben laden bei Fehler
-        end
-    else
-        print("Datei 'texture.txt' existiert nicht. Standardfarben werden verwendet.")
-        Colors = defaultColors()
-    end
-else
-    print("Ordner '" .. folderPath .. "' existiert nicht. Standardfarben werden verwendet.")
-    Colors = defaultColors()
-end
-
-
---//
-
-function library:Window(WindowArgs)
-WindowArgs.Text = WindowArgs.Text or "Window"
-
-local WindowTable = {}
-WindowTable.__index = WindowTable
-
-self.Tabs = 0
-self.Hovering = false
-
-local SelectedTab = nil
-
-local Window = Utilities:Create("ScreenGui", {
-    Name = "PPHUD",
-    ZIndexBehavior = Enum.ZIndexBehavior.Global
-}, {
-    Utilities:Create("Frame", {
-        Name = "Main",
-        Size = UDim2.new(0, 600, 0, 400),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255), -- Colors.Primary
-        ClipsDescendants = true,
-        Position = UDim2.new(0, 600, 0, 270)
-    }, {
-        Utilities:Create("UIGradient", {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(27, 25, 27)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 10, 12)),
-            }),
-            Offset = Vector2.new(0, 0.65),
-            Rotation = 90
-        }),
-        Utilities:Create("Frame", {
-            Name = "Containers",
-            Size = UDim2.new(1, 0, 1, -50),
-            BackgroundTransparency = 1,
-            Position = UDim2.new(0, 0, 0, 26)
-        }),
-        Utilities:Create("Frame", {
-            Name = "Bottom",
-            Size = UDim2.new(1, 0, 0, 24),
-            AnchorPoint = Vector2.new(.5, 1),
-            Position = UDim2.new(.5, 0, 1, 0),
-            BackgroundColor3 = Colors.Secondary,
-            ZIndex = DropIndex + 5
-        }, {
-            Utilities:Create("Frame", {
-                Name = "Divider",
-                Size = UDim2.new(1, 0, 0, 1),
-                AnchorPoint = Vector2.new(.5, 0),
-                BackgroundColor3 = Colors.Divider,
-                Position = UDim2.new(.5, 0, 0, 0),
-                ZIndex = DropIndex + 5
-            }),
-            Utilities:Create("ImageLabel", {
+  end
+  --//
+  
+  --// Colors --//
+  local Colors = {
+      Primary = Color3.fromRGB(27, 25, 27),
+      Secondary = Color3.fromRGB(42, 40, 42),
+      Tertiary = Color3.fromRGB(74, 73, 74),
+      Divider = Color3.fromRGB(46, 45, 46),
+      AccentDivider = Color3.fromRGB(54, 54, 54),
+      PrimaryText = Color3.fromRGB(211, 211, 211),
+      SecondaryText = Color3.fromRGB(122, 122, 122),
+      TertiaryText = Color3.fromRGB(158, 158, 158),
+      Hovering = Color3.fromRGB(56, 53, 56),
+      Accent = Color3.fromRGB(207, 14, 200),
+      DarkerAccent = Color3.fromRGB(207, 14, 200),
+      AccentText = Color3.fromRGB(235, 235, 235)
+  }
+  --//
+  
+  function library:Window(WindowArgs)
+  WindowArgs.Text = WindowArgs.Text or "Window"
+  
+  local WindowTable = {}
+  WindowTable.__index = WindowTable
+  
+  self.Tabs = 0
+  self.Hovering = false
+  
+  local SelectedTab = nil
+  
+  local Window = Utilities:Create("ScreenGui", {
+      Name = "PPHUD",
+      ZIndexBehavior = Enum.ZIndexBehavior.Global
+  }, {
+      Utilities:Create("Frame", {
+          Name = "Main",
+          Size = UDim2.new(0, 600, 0, 400),
+          BackgroundColor3 = Color3.fromRGB(255, 255, 255), -- Colors.Primary
+          ClipsDescendants = true,
+          Position = UDim2.new(0, 600, 0, 270)
+      }, {
+          Utilities:Create("UIGradient", {
+              Color = ColorSequence.new({
+                  ColorSequenceKeypoint.new(0, Color3.fromRGB(27, 25, 27)),
+                  ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 10, 12)),
+              }),
+              Offset = Vector2.new(0, 0.65),
+              Rotation = 90
+          }),
+          Utilities:Create("Frame", {
+              Name = "Containers",
+              Size = UDim2.new(1, 0, 1, -50),
+              BackgroundTransparency = 1,
+              Position = UDim2.new(0, 0, 0, 26)
+          }),
+          Utilities:Create("Frame", {
+              Name = "Bottom",
+              Size = UDim2.new(1, 0, 0, 24),
+              AnchorPoint = Vector2.new(.5, 1),
+              Position = UDim2.new(.5, 0, 1, 0),
+              BackgroundColor3 = Colors.Secondary,
+              ZIndex = DropIndex + 5
+          }, {
+              Utilities:Create("Frame", {
+                  Name = "Divider",
+                  Size = UDim2.new(1, 0, 0, 1),
+                  AnchorPoint = Vector2.new(.5, 0),
+                  BackgroundColor3 = Colors.Divider,
+                  Position = UDim2.new(.5, 0, 0, 0),
+                  ZIndex = DropIndex + 5
+              }),
+              Utilities:Create("ImageLabel", {
                 Name = "ResizeIcon",
                 Size = UDim2.new(0, 10, 0, 10),
                 BackgroundTransparency = 1,
@@ -233,27 +171,27 @@ local Window = Utilities:Create("ScreenGui", {
                 AnchorPoint = Vector2.new(1, 1),
                 Position = UDim2.new(1, 0, 1, 0),
                 ZIndex = DropIndex + 5
-            }, {
+              }, {
                 Utilities:Create("TextButton", {
                     Name = "ResizeButton",
                     Size = UDim2.new(0, 10, 0, 10),
                     BackgroundTransparency = 1,
                     ZIndex = DropIndex + 5
                 })
-            }),
-            Utilities:Create("TextLabel", {
-                Name = "BottomText",
-                Text = WindowArgs.Text,
-                Size = UDim2.new(1, -10, 0, 24),
-                BackgroundTransparency = 1,
-                Position = UDim2.new(0, 8, 0, 0),
-                RichText = true,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                TextSize = 13,
-                Font = Enum.Font.SourceSansBold,
-                TextColor3 = Colors.PrimaryText,
-                ZIndex = DropIndex + 5
-            }, {
+              }),
+              Utilities:Create("TextLabel", {
+                  Name = "BottomText",
+                  Text = WindowArgs.Text,
+                  Size = UDim2.new(1, -10, 0, 24),
+                  BackgroundTransparency = 1,
+                  Position = UDim2.new(0, 8, 0, 0),
+                  RichText = true,
+                  TextXAlignment = Enum.TextXAlignment.Left,
+                  TextSize = 13,
+                  Font = Enum.Font.SourceSansBold,
+                  TextColor3 = Colors.PrimaryText,
+                  ZIndex = DropIndex + 5
+              }, {
                 Utilities:Create("TextButton", {
                     Name = "CloseConsole",
                     BackgroundTransparency = 1,
@@ -261,44 +199,44 @@ local Window = Utilities:Create("ScreenGui", {
                     Size = UDim2.new(1, -10, 0, 24),
                     ZIndex = 11001
                 })
-            })
-        }),
-        Utilities:Create("Frame", {
-            Name = "Topbar",
-            AnchorPoint = Vector2.new(.5, 0),
-            Position = UDim2.new(.5, 0, 0, 0),
-            BackgroundColor3 = Colors.Secondary,
-            Size = UDim2.new(1, 0, 0, 26)
-        }, {
-            Utilities:Create("Frame", {
-                Name = "Divider",
-                Size = UDim2.new(1, 0, 0, 1),
-                BackgroundColor3 = Colors.Divider,
-                AnchorPoint = Vector2.new(0.5, 1),
-                ZIndex = 2,
-                Position = UDim2.new(.5, 0, 1, 0)
-            }),
-            Utilities:Create("Frame", {
-                Name = "TabContainer",
-                Size = UDim2.new(1, 0, 0, 26),
-                BackgroundTransparency = 1,
-                ClipsDescendants = true
-            }, {
-                Utilities:Create("UIListLayout", {
-                    FillDirection = Enum.FillDirection.Horizontal
-                })
-            })
-        })
-    })
-})
+              })
+          }),
+          Utilities:Create("Frame", {
+              Name = "Topbar",
+              AnchorPoint = Vector2.new(.5, 0),
+              Position = UDim2.new(.5, 0, 0, 0),
+              BackgroundColor3 = Colors.Secondary,
+              Size = UDim2.new(1, 0, 0, 26)
+          }, {
+              Utilities:Create("Frame", {
+                  Name = "Divider",
+                  Size = UDim2.new(1, 0, 0, 1),
+                  BackgroundColor3 = Colors.Divider,
+                  AnchorPoint = Vector2.new(0.5, 1),
+                  ZIndex = 2,
+                  Position = UDim2.new(.5, 0, 1, 0)
+              }),
+              Utilities:Create("Frame", {
+                  Name = "TabContainer",
+                  Size = UDim2.new(1, 0, 0, 26),
+                  BackgroundTransparency = 1,
+                  ClipsDescendants = true
+              }, {
+                  Utilities:Create("UIListLayout", {
+                      FillDirection = Enum.FillDirection.Horizontal
+                  })
+              })
+          })
+      })
+  })
 
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
+  UserInputService.InputBegan:Connect(function(Input, GameProcessed)
     if Input.KeyCode == Enum.KeyCode.LeftAlt and not GameProcessed then
         Window.Main.Visible = not Window.Main.Visible
     end
-end)
+  end)
 
-local Console = Utilities:Create("Frame", {
+  local Console = Utilities:Create("Frame", {
     Name = "Console",
     Size = UDim2.new(0, 500, 0, 300),
     Parent = Window.Main,
@@ -307,7 +245,7 @@ local Console = Utilities:Create("Frame", {
     ZIndex = 11000,
     Position = UDim2.fromScale(.5, .5),
     BackgroundColor3 = Colors.Primary
-}, {
+  }, {
     Utilities:Create("UIStroke", {
         Color = Colors.Divider
     }),
@@ -345,37 +283,37 @@ local Console = Utilities:Create("Frame", {
             ZIndex = 11001
         })
     })
-})
+  })
 
-local consoleContainer = Console.ConsoleContainer
+  local consoleContainer = Console.ConsoleContainer
 
-local scrollSize
-consoleContainer.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+  local scrollSize
+  consoleContainer.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     scrollSize = consoleContainer.UIListLayout.AbsoluteContentSize.Y
 
     consoleContainer.CanvasPosition = Vector2.new(0, scrollSize)
-end)
+  end)
 
-local bottomText = Window.Main.Bottom.BottomText
+  local bottomText = Window.Main.Bottom.BottomText
 
-bottomText.MouseEnter:Connect(function()
+  bottomText.MouseEnter:Connect(function()
     Utilities:Tween(bottomText, .125, {TextColor3 = Colors.Accent})
-end)
+  end)
 
-bottomText.MouseLeave:Connect(function()
+  bottomText.MouseLeave:Connect(function()
     Utilities:Tween(bottomText, .125, {TextColor3 = Colors.PrimaryText})
-end)
+  end)
 
-bottomText.CloseConsole.MouseButton1Click:Connect(function()
+  bottomText.CloseConsole.MouseButton1Click:Connect(function()
     WindowTable:ToggleConsole()
-end)
+  end)
 
-function WindowTable:ToggleConsole()
+  function WindowTable:ToggleConsole()
     Console.Visible = not Console.Visible
-end
+  end
 
-local coloredMessage = true
-function WindowTable:Message(consoleArgs)
+  local coloredMessage = true
+  function WindowTable:Message(consoleArgs)
     consoleArgs.Text = consoleArgs.Text or "Message"
     consoleArgs.Color = consoleArgs.Color or Colors.PrimaryText
 
@@ -407,7 +345,7 @@ function WindowTable:Message(consoleArgs)
             ZIndex = 11002
         })
     })
-end
+  end
 
 if syn and syn.protect_gui then
     syn.protect_gui(Window)
@@ -418,29 +356,29 @@ else
     Window.Parent = CoreGui
 end
 
-local ResizeButton = Window.Main.Bottom.ResizeIcon.ResizeButton
-local TabContainer = Window.Main.Topbar.TabContainer
-local Containers = Window.Main.Containers
+  local ResizeButton = Window.Main.Bottom.ResizeIcon.ResizeButton
+  local TabContainer = Window.Main.Topbar.TabContainer
+  local Containers = Window.Main.Containers
 
-local SizeX = Instance.new("NumberValue", Window.Main)
-SizeX.Name = "X"
+  local SizeX = Instance.new("NumberValue", Window.Main)
+  SizeX.Name = "X"
 
-local SizeY = Instance.new("NumberValue", Window.Main)
-SizeY.Name = "Y"
+  local SizeY = Instance.new("NumberValue", Window.Main)
+  SizeY.Name = "Y"
 
-local function ResizeTabs()
+  local function ResizeTabs()
     local TabSize = 1 / self.Tabs
     
     task.spawn(function()
-    for _, v in pairs(TabContainer:GetChildren()) do
-        if v.ClassName == "Frame" then
-            v.Size = UDim2.new(TabSize, 0, 0, 26)
-        end
-    end
+      for _, v in pairs(TabContainer:GetChildren()) do
+          if v.ClassName == "Frame" then
+              v.Size = UDim2.new(TabSize, 0, 0, 26)
+          end
+      end
     end)
-end
+  end
 
-local function Resize()
+  local function Resize()
     local MouseLocation = Utilities:GetMouse()
     local X = math.clamp(MouseLocation.X - Window.Main.AbsolutePosition.X, 300, 1300)
     local Y = math.clamp(MouseLocation.Y - Window.Main.AbsolutePosition.Y, 165, 730)
@@ -451,281 +389,281 @@ local function Resize()
     Utilities:Tween(Window.Main, .05, {Size = UDim2.new(0, X, 0, Y)})
 
     ResizeTabs()
-end
+  end
 
-ResizeButton.MouseButton1Down:Connect(function()
-local ResizeMove, ResizeKill
+  ResizeButton.MouseButton1Down:Connect(function()
+  local ResizeMove, ResizeKill
+  
+  Utilities:Tween(Window.Main.Bottom.ResizeIcon, .125, {ImageColor3 = Colors.Accent})
 
-Utilities:Tween(Window.Main.Bottom.ResizeIcon, .125, {ImageColor3 = Colors.Accent})
-
-ResizeMove = Mouse.Move:Connect(function()
+  ResizeMove = Mouse.Move:Connect(function()
     Resize()
-end)
+  end)
 
-ResizeKill = UserInputService.InputEnded:Connect(function(UserInput)
+  ResizeKill = UserInputService.InputEnded:Connect(function(UserInput)
     if UserInput.UserInputType == Enum.UserInputType.MouseButton1 then
         ResizeMove:Disconnect()
         ResizeKill:Disconnect()
 
         Utilities:Tween(Window.Main.Bottom.ResizeIcon, .125, {ImageColor3 = Color3.fromRGB(255, 255, 255)})
     end
-end)
-
+  end)
+  
     --TweenService:Create(Window.Mai, TweenInfo.new(0.09, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(Scale,0,0,14)}):Play()
-end)
+  end)
 
-TabContainer.ChildAdded:Connect(function()
-    self.Tabs = self.Tabs + 1
+  TabContainer.ChildAdded:Connect(function()
+      self.Tabs = self.Tabs + 1
+  
+      ResizeTabs()
+  end)
 
-    ResizeTabs()
-end)
+  local dragging = false
+  local dragInput, mousePos, framePos
 
-local dragging = false
-local dragInput, mousePos, framePos
+  Window.Main.InputBegan:Connect(function(input)
+      if input.UserInputType == Enum.UserInputType.MouseButton1 then
+          dragging = true
+          mousePos = input.Position
+          framePos = Window.Main.Position
+              
+          input.Changed:Connect(function()
+              if input.UserInputState == Enum.UserInputState.End then
+                  dragging = false
+              end
+          end)
+      end
+  end)
 
-Window.Main.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        mousePos = input.Position
-        framePos = Window.Main.Position
-            
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
+  Window.Main.InputChanged:Connect(function(input)
+      if input.UserInputType == Enum.UserInputType.MouseMovement then
+          dragInput = input
+      end
+  end)
 
-Window.Main.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
+  UserInputService.InputChanged:Connect(function(input)
+      if input == dragInput and dragging then
+          local delta = input.Position - mousePos
+          Window.Main.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+      end
+  end)
+  
+  function WindowTable:Exit()
+      Window:Destroy()
+  end
+  
+  function WindowTable:Toggle()
+      Window.Enabled = not Window.Enabled
+  end
+  
+  function WindowTable:Tab(TabArgs)
+  TabArgs.Text = TabArgs.Text or "Tab"
+  
+  local TabTable = {}
+  
+  local Tab = Utilities:Create("Frame", {
+      Name = "Tab",
+      Parent = TabContainer,
+      Size = UDim2.new(0, 200, 0, 26),
+      BackgroundTransparency = 1,
+  }, {
+      Utilities:Create("Frame", {
+          Name = "Divider",
+          AnchorPoint = Vector2.new(.5, 1),
+          Position = UDim2.new(.5, 0, 1, 0),
+          Size = UDim2.new(1, 0, 0, 1),
+          ZIndex = 3,
+          BackgroundColor3 = Colors.Divider
+      }),
+      Utilities:Create("TextLabel", {
+          Name = "TabText",
+          BackgroundTransparency = 1,
+          Size = UDim2.new(1, 0, 1, 0),
+          Text = TabArgs.Text,
+          RichText = true,
+          Font = Enum.Font.SourceSansBold,
+          TextColor3 = Colors.SecondaryText,
+          TextSize = 14,
+          ZIndex = 2
+      }),
+      Utilities:Create("TextButton", {
+          Name = "TabButton",
+          Size = UDim2.new(1, 0, 1, 0),
+          BackgroundTransparency = 1
+      })
+  })
 
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - mousePos
-        Window.Main.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
-    end
-end)
+  ResizeTabs()
 
-function WindowTable:Exit()
-    Window:Destroy()
-end
-
-function WindowTable:Toggle()
-    Window.Enabled = not Window.Enabled
-end
-
-function WindowTable:Tab(TabArgs)
-TabArgs.Text = TabArgs.Text or "Tab"
-
-local TabTable = {}
-
-local Tab = Utilities:Create("Frame", {
-    Name = "Tab",
-    Parent = TabContainer,
-    Size = UDim2.new(0, 200, 0, 26),
-    BackgroundTransparency = 1,
-}, {
-    Utilities:Create("Frame", {
-        Name = "Divider",
-        AnchorPoint = Vector2.new(.5, 1),
-        Position = UDim2.new(.5, 0, 1, 0),
-        Size = UDim2.new(1, 0, 0, 1),
-        ZIndex = 3,
-        BackgroundColor3 = Colors.Divider
-    }),
-    Utilities:Create("TextLabel", {
-        Name = "TabText",
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 1, 0),
-        Text = TabArgs.Text,
-        RichText = true,
-        Font = Enum.Font.SourceSansBold,
-        TextColor3 = Colors.SecondaryText,
-        TextSize = 14,
-        ZIndex = 2
-    }),
-    Utilities:Create("TextButton", {
-        Name = "TabButton",
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1
-    })
-})
-
-ResizeTabs()
-
-local ContainerHolder = Utilities:Create("Frame", {
+  local ContainerHolder = Utilities:Create("Frame", {
     Name = "ContainerHolder",
     Size = UDim2.new(1, 0, 1, 0),
     Parent = Containers,
     BackgroundTransparency = 1
-}, {
+  }, {
     Utilities:Create("UIListLayout", {
         FillDirection = Enum.FillDirection.Horizontal
     })
-})
-
-local Left = Utilities:Create("ScrollingFrame", {
-    Name = "Left",
-    BackgroundTransparency = 1,
-    Visible = false,
-    BackgroundColor3 = Color3.fromRGB(167, 54, 54),
-    CanvasSize = UDim2.new(0, 0, 0, 0),
-    AutomaticCanvasSize = Enum.AutomaticSize.Y,
-    ClipsDescendants = false,
-    ScrollBarThickness = 0,
-    Parent = ContainerHolder,
-    Size = UDim2.new(.5, 0, 0, 350)
-    }, {
-        Utilities:Create("UIListLayout"),
-        Utilities:Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 8)
-        })
-})
-
-local Right = Utilities:Create("ScrollingFrame", {
-    Name = "Right",
-    BackgroundTransparency = 1,
-    Visible = false,
-    BackgroundColor3 = Color3.fromRGB(45, 175, 62),
-    CanvasSize = UDim2.new(0, 0, 0, 0),
-    AutomaticCanvasSize = Enum.AutomaticSize.Y,
-    ClipsDescendants = false,
-    ScrollBarThickness = 0,
-    Parent = ContainerHolder,
-    Size = UDim2.new(.5, 0, 0, 350),
-    Position = UDim2.new(0, 300, 0, 0)
-    }, {
-        Utilities:Create("UIListLayout"),
-        Utilities:Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 6)
-        })
-})
-
-Tab.MouseEnter:Connect(function()
-    if SelectedTab == nil or SelectedTab ~= Tab then
-        Utilities:Tween(Tab.Divider, .125, {BackgroundColor3 = Colors.Tertiary})
-        Utilities:Tween(Tab.TabText, .125, {TextColor3 = Colors.PrimaryText})
-    end
-end)
-
-Tab.MouseLeave:Connect(function()
-    if SelectedTab == nil or Tab ~= SelectedTab then
-        Utilities:Tween(Tab.Divider, .125, {BackgroundColor3 = Colors.Divider})
-        Utilities:Tween(Tab.TabText, .125, {TextColor3 = Colors.SecondaryText})
-    end
-end)
-
-function TabTable:Select()
-SelectedTab = Tab
-
-task.spawn(function()
-    for _, v in pairs(Containers:GetChildren()) do
+  })
+  
+  local Left = Utilities:Create("ScrollingFrame", {
+      Name = "Left",
+      BackgroundTransparency = 1,
+      Visible = false,
+      BackgroundColor3 = Color3.fromRGB(167, 54, 54),
+      CanvasSize = UDim2.new(0, 0, 0, 0),
+      AutomaticCanvasSize = Enum.AutomaticSize.Y,
+      ClipsDescendants = false,
+      ScrollBarThickness = 0,
+      Parent = ContainerHolder,
+      Size = UDim2.new(.5, 0, 0, 350)
+      }, {
+          Utilities:Create("UIListLayout"),
+          Utilities:Create("UIPadding", {
+              PaddingLeft = UDim.new(0, 8)
+          })
+  })
+  
+  local Right = Utilities:Create("ScrollingFrame", {
+      Name = "Right",
+      BackgroundTransparency = 1,
+      Visible = false,
+      BackgroundColor3 = Color3.fromRGB(45, 175, 62),
+      CanvasSize = UDim2.new(0, 0, 0, 0),
+      AutomaticCanvasSize = Enum.AutomaticSize.Y,
+      ClipsDescendants = false,
+      ScrollBarThickness = 0,
+      Parent = ContainerHolder,
+      Size = UDim2.new(.5, 0, 0, 350),
+      Position = UDim2.new(0, 300, 0, 0)
+      }, {
+          Utilities:Create("UIListLayout"),
+          Utilities:Create("UIPadding", {
+              PaddingLeft = UDim.new(0, 6)
+          })
+  })
+  
+  Tab.MouseEnter:Connect(function()
+      if SelectedTab == nil or SelectedTab ~= Tab then
+          Utilities:Tween(Tab.Divider, .125, {BackgroundColor3 = Colors.Tertiary})
+          Utilities:Tween(Tab.TabText, .125, {TextColor3 = Colors.PrimaryText})
+      end
+  end)
+  
+  Tab.MouseLeave:Connect(function()
+      if SelectedTab == nil or Tab ~= SelectedTab then
+          Utilities:Tween(Tab.Divider, .125, {BackgroundColor3 = Colors.Divider})
+          Utilities:Tween(Tab.TabText, .125, {TextColor3 = Colors.SecondaryText})
+      end
+  end)
+  
+  function TabTable:Select()
+  SelectedTab = Tab
+  
+  task.spawn(function()
+      for _, v in pairs(Containers:GetChildren()) do
         if v.Name == "ContainerHolder" then
             if v.Left ~= Left then
                 v.Left.Visible = false
                 v.Right.Visible = false
             end
         end
-    end
-    
-    for _, v in pairs(TabContainer:GetChildren()) do
-        if v.ClassName == "Frame" and v ~= Tab then
-            Utilities:Tween(v.Divider, .125, {BackgroundColor3 = Colors.Divider})
-            Utilities:Tween(v.TabText, .125, {TextColor3 = Colors.SecondaryText})
-        end
-    end
-end)
+      end
+      
+      for _, v in pairs(TabContainer:GetChildren()) do
+          if v.ClassName == "Frame" and v ~= Tab then
+              Utilities:Tween(v.Divider, .125, {BackgroundColor3 = Colors.Divider})
+              Utilities:Tween(v.TabText, .125, {TextColor3 = Colors.SecondaryText})
+          end
+      end
+  end)
+  
+  Left.Visible = true
+  Right.Visible = true
+  Utilities:Tween(Tab.Divider, .125, {BackgroundColor3 = Colors.DarkerAccent})
+  Utilities:Tween(Tab.TabText, .125, {TextColor3 = Colors.AccentText})
+  end
+  
+  Tab.TabButton.MouseButton1Click:Connect(function()
+      TabTable:Select()
+  end)
+  
+  function TabTable:Section(SectionArgs)
+  SectionArgs.Text = SectionArgs.Text or "Section"
+  SectionArgs.Side = SectionArgs.Side or "Left"
 
-Left.Visible = true
-Right.Visible = true
-Utilities:Tween(Tab.Divider, .125, {BackgroundColor3 = Colors.DarkerAccent})
-Utilities:Tween(Tab.TabText, .125, {TextColor3 = Colors.AccentText})
-end
-
-Tab.TabButton.MouseButton1Click:Connect(function()
-    TabTable:Select()
-end)
-
-function TabTable:Section(SectionArgs)
-SectionArgs.Text = SectionArgs.Text or "Section"
-SectionArgs.Side = SectionArgs.Side or "Left"
-
-local SectionTable = {}
-
-local Section = Utilities:Create("Frame", {
-    Name = "Section",
-    Parent = SectionArgs.Side == "Left" and Left or Right,
-    BackgroundColor3 = Color3.fromRGB(167, 54, 54),
-    BackgroundTransparency = 1,
-    Size = UDim2.new(0, 286, 0, 36) -- +64
-}, {
-    Utilities:Create("TextLabel", {
-        Name = "SectionText",
-        Size = UDim2.new(0, 286, 0, 26),
-        Text = SectionArgs.Text,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextSize = 14,
-        BackgroundTransparency = 1,
-        TextColor3 = Colors.PrimaryText,
-        RichText = true,
-        Font = Enum.Font.SourceSansBold,
-        ZIndex = 2
-    }),
-    Utilities:Create("Frame", {
-        Name = "Divider",
-        Position = UDim2.new(0, 0, 0, 28),
-        Size = UDim2.new(0, 286, 0, 1),
-        BackgroundColor3 = Colors.Divider
-    }),
-    Utilities:Create("Frame", {
+  local SectionTable = {}
+  
+  local Section = Utilities:Create("Frame", {
+      Name = "Section",
+      Parent = SectionArgs.Side == "Left" and Left or Right,
+      BackgroundColor3 = Color3.fromRGB(167, 54, 54),
+      BackgroundTransparency = 1,
+      Size = UDim2.new(0, 286, 0, 36) -- +64
+  }, {
+      Utilities:Create("TextLabel", {
+          Name = "SectionText",
+          Size = UDim2.new(0, 286, 0, 26),
+          Text = SectionArgs.Text,
+          TextXAlignment = Enum.TextXAlignment.Left,
+          TextSize = 14,
+          BackgroundTransparency = 1,
+          TextColor3 = Colors.PrimaryText,
+          RichText = true,
+          Font = Enum.Font.SourceSansBold,
+          ZIndex = 2
+      }),
+      Utilities:Create("Frame", {
+          Name = "Divider",
+          Position = UDim2.new(0, 0, 0, 28),
+          Size = UDim2.new(0, 286, 0, 1),
+          BackgroundColor3 = Colors.Divider
+      }),
+      Utilities:Create("Frame", {
         Name = "Container",
         Size = UDim2.new(0, 286, 0, 0),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 0, 0, 38)
-    }, {
+      }, {
         Utilities:Create("UIListLayout", {
             SortOrder = Enum.SortOrder.LayoutOrder
         })
-    })
-})
+      })
+  })
 
-local SectionY = 36
+  local SectionY = 36
 
-SizeX:GetPropertyChangedSignal("Value"):Connect(function()
+  SizeX:GetPropertyChangedSignal("Value"):Connect(function()
     local Size = SizeX.Value / 2 - 14
     Section.Size = UDim2.new(0, Size, 0, SectionY)
     Section.Divider.Size = UDim2.new(0, Size, 0, 1)
-end)
+  end)
 
-local SectionContainer = Section.Container
+  local SectionContainer = Section.Container
 
-SectionContainer.ChildAdded:Connect(function()
+  SectionContainer.ChildAdded:Connect(function()
     SectionY = SectionY + 21
 
     Section.Size = UDim2.new(0, 286, 0, SectionY)
     SectionContainer.Size = UDim2.new(0, 286, 0, SectionY)
-end)
+  end)
 
-function SectionTable:Check(CheckArgs)
-CheckArgs.Text = CheckArgs.Text or "Check"
-CheckArgs.Flag = CheckArgs.Flag or nil
-CheckArgs.Default = CheckArgs.Default or false
-CheckArgs.Callback = CheckArgs.Callback or function() end
+  function SectionTable:Check(CheckArgs)
+  CheckArgs.Text = CheckArgs.Text or "Check"
+  CheckArgs.Flag = CheckArgs.Flag or nil
+  CheckArgs.Default = CheckArgs.Default or false
+  CheckArgs.Callback = CheckArgs.Callback or function() end
 
-local State = false
+  local State = false
+  
+  local CheckTable = {}
 
-local CheckTable = {}
-
-local Check = Utilities:Create("Frame", {
+  local Check = Utilities:Create("Frame", {
     Name = "Check",
     Parent = SectionContainer,
     Size = UDim2.new(0, 286, 0, 21),
     BackgroundTransparency = 1,
-}, {
+  }, {
     Utilities:Create("TextButton", {
         Name = "CheckButton",
         Size = UDim2.new(0, 14, 0, 14),
@@ -759,30 +697,30 @@ local Check = Utilities:Create("Frame", {
             Color = Colors.Divider
         })
     })
-})
+  })
 
-local CheckButton = Check.CheckButton
+  local CheckButton = Check.CheckButton
 
-local TextBounds = Check.CheckFrame.CheckText.TextBounds
-local ButtonSize = TextBounds.X ~= "" and TextBounds.X + 20 or 14
+  local TextBounds = Check.CheckFrame.CheckText.TextBounds
+  local ButtonSize = TextBounds.X ~= "" and TextBounds.X + 20 or 14
 
-CheckButton.MouseEnter:Connect(function()
+  CheckButton.MouseEnter:Connect(function()
     if not State then
         Utilities:Tween(Check.CheckFrame.UIStroke, .125, {Color = Colors.Tertiary})
         Utilities:Tween(Check.CheckFrame.CheckInner, .125, {BackgroundColor3 = Colors.Hovering})
     end
-end)
+  end)
 
-CheckButton.MouseLeave:Connect(function()
+  CheckButton.MouseLeave:Connect(function()
     if not State then
         Utilities:Tween(Check.CheckFrame.UIStroke, .125, {Color = Colors.Divider})
         Utilities:Tween(Check.CheckFrame.CheckInner, .125, {BackgroundColor3 = Colors.Secondary})
     end
-end)
+  end)
 
-CheckButton.Size = UDim2.new(0, ButtonSize, 0, 14)
+  CheckButton.Size = UDim2.new(0, ButtonSize, 0, 14)
 
-function CheckTable:Set(bool)
+  function CheckTable:Set(bool)
     task.spawn(CheckArgs.Callback, bool)
     State = bool
     if CheckArgs.Flag ~= nil then
@@ -796,27 +734,27 @@ function CheckTable:Set(bool)
         Utilities:Tween(Check.CheckFrame.UIStroke, .125, {Color = Colors.Divider})
         Utilities:Tween(Check.CheckFrame.CheckInner, .125, {BackgroundColor3 = Colors.Secondary})
     end
-end
+  end
 
-CheckButton.MouseButton1Click:Connect(function()
+  CheckButton.MouseButton1Click:Connect(function()
     State = not State
 
     CheckTable:Set(State)
-end)
+  end)
 
-return CheckTable
-end
+  return CheckTable
+  end
 
-function SectionTable:Button(Info)
-Info.Text = Info.Text or "Button"
-Info.Callback = Info.Callback or function() end
+  function SectionTable:Button(Info)
+  Info.Text = Info.Text or "Button"
+  Info.Callback = Info.Callback or function() end
 
-local Button = Utilities:Create("Frame", {
+  local Button = Utilities:Create("Frame", {
     Name = "Button",
     Parent = SectionContainer,
     Size = UDim2.new(0, 286, 0, 21),
     BackgroundTransparency = 1
-}, {
+  }, {
     Utilities:Create("Frame", {
         Name = "ButtonFrame",
         BackgroundColor3 = Colors.Secondary,
@@ -841,57 +779,57 @@ local Button = Utilities:Create("Frame", {
             BackgroundTransparency = 1
         })
     })
-})
+  })
 
-local Hovering = false
+  local Hovering = false
 
-Button.ButtonFrame.MouseEnter:Connect(function()
+  Button.ButtonFrame.MouseEnter:Connect(function()
     Hovering = true
     Utilities:Tween(Button.ButtonFrame, .125, {BackgroundColor3 = Colors.Hovering})
     Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.AccentDivider})
-end)
+  end)
 
-Button.ButtonFrame.MouseLeave:Connect(function()
+  Button.ButtonFrame.MouseLeave:Connect(function()
     Hovering = false
     Utilities:Tween(Button.ButtonFrame, .125, {BackgroundColor3 = Colors.Secondary})
     Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.Divider})
-end)
+  end)
 
-local TextX = math.clamp(Button.ButtonFrame.ButtonText.TextBounds.X, 15, 1000)
+  local TextX = math.clamp(Button.ButtonFrame.ButtonText.TextBounds.X, 15, 1000)
 
-Button.ButtonFrame.Size = UDim2.new(0, TextX + 10, 0, 14)
+  Button.ButtonFrame.Size = UDim2.new(0, TextX + 10, 0, 14)
 
-Button.ButtonFrame.ButtonButton.MouseButton1Down:Connect(function()
+  Button.ButtonFrame.ButtonButton.MouseButton1Down:Connect(function()
     Utilities:Tween(Button.ButtonFrame.UIStroke, .1, {Color = Colors.Accent})
     Utilities:Tween(Button.ButtonFrame.ButtonText, .1, {TextColor3 = Colors.AccentText})
-end)
+  end)
 
-Button.ButtonFrame.ButtonButton.MouseButton1Up:Connect(function()
+  Button.ButtonFrame.ButtonButton.MouseButton1Up:Connect(function()
     Utilities:Tween(Button.ButtonFrame.ButtonText, .1, {TextColor3 = Colors.PrimaryText})
     if Hovering then
         Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.AccentDivider})
         else
         Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.Divider})
     end
-end)
+  end)
 
-Button.ButtonFrame.ButtonButton.MouseButton1Click:Connect(function()
+  Button.ButtonFrame.ButtonButton.MouseButton1Click:Connect(function()
     task.spawn(Info.Callback)
-end)
+  end)
+  
+  end
 
-end
+  function SectionTable:Slider(Info)
+  Info.Text = Info.Text or "Slider"
+  Info.Flag = Info.Flag or nil
+  Info.Default = Info.Default or 10
+  Info.Minimum = Info.Minimum or 5
+  Info.Maximum = Info.Maximum or 20
+  Info.Incrementation = Info.Incrementation or 1
+  Info.Postfix = Info.Postfix or ""
+  Info.Callback = Info.Callback or function() end
 
-function SectionTable:Slider(Info)
-Info.Text = Info.Text or "Slider"
-Info.Flag = Info.Flag or nil
-Info.Default = Info.Default or 10
-Info.Minimum = Info.Minimum or 5
-Info.Maximum = Info.Maximum or 20
-Info.Incrementation = Info.Incrementation or 1
-Info.Postfix = Info.Postfix or ""
-Info.Callback = Info.Callback or function() end
-
-if Info.Minimum > Info.Maximum then
+  if Info.Minimum > Info.Maximum then
     local ValueBefore = Info.Minimum
     Info.Minimum, Info.Maximum = Info.Maximum, ValueBefore
     end
@@ -913,12 +851,12 @@ if Info.Minimum > Info.Maximum then
         end
     end
 
-local Slider = Utilities:Create("Frame", {
+  local Slider = Utilities:Create("Frame", {
     Name = "Slider",
     Parent = SectionContainer,
     Size = UDim2.new(0, 286, 0, 21),
     BackgroundTransparency = 1
-}, {
+  }, {
     Utilities:Create("Frame", {
         Name = "SliderOuter",
         BackgroundColor3 = Colors.Secondary,
@@ -960,33 +898,33 @@ local Slider = Utilities:Create("Frame", {
             BackgroundTransparency = 1
         })
     })
-})
+  })
 
-SizeX:GetPropertyChangedSignal("Value"):Connect(function()
+  SizeX:GetPropertyChangedSignal("Value"):Connect(function()
     local Size = SizeX.Value / 2 - 14
     Slider.Size = UDim2.new(0, Size, 0, 21)
-end)
+  end)
 
-Slider.SliderOuter.MouseEnter:Connect(function()
+  Slider.SliderOuter.MouseEnter:Connect(function()
     Utilities:Tween(Slider.SliderOuter.UIStroke, .125, {Color = Colors.Tertiary})
     Utilities:Tween(Slider.SliderOuter, .125, {BackgroundColor3 = Colors.Hovering})
-end)
+  end)
 
-Slider.SliderOuter.MouseLeave:Connect(function()
+  Slider.SliderOuter.MouseLeave:Connect(function()
     Utilities:Tween(Slider.SliderOuter.UIStroke, .125, {Color = Colors.AccentDivider})
     Utilities:Tween(Slider.SliderOuter, .125, {BackgroundColor3 = Colors.Secondary})
     Utilities:Tween(Slider.SliderOuter.SliderInner, .125, {BackgroundColor3 = Colors.DarkerAccent})
-end)
+  end)
 
-Slider.SliderOuter.SliderButton.MouseButton1Down:Connect(function()
+  Slider.SliderOuter.SliderButton.MouseButton1Down:Connect(function()
     Utilities:Tween(Slider.SliderOuter.SliderInner, .125, {BackgroundColor3 = Colors.Accent})
-end)
+  end)
 
-Slider.SliderOuter.SliderButton.MouseButton1Up:Connect(function()
+  Slider.SliderOuter.SliderButton.MouseButton1Up:Connect(function()
     Utilities:Tween(Slider.SliderOuter.SliderInner, .125, {BackgroundColor3 = Colors.DarkerAccent})
-end)
+  end)
 
-local MinSize = 0
+  local MinSize = 0
     local MaxSize = 1
 
     local SizeFromScale = (MinSize +  (MaxSize - MinSize)) * DefaultScale
@@ -1014,9 +952,9 @@ local MinSize = 0
             end
         end)
     end)
-end
+  end
 
-function SectionTable:Label(Info)
+  function SectionTable:Label(Info)
     Info.Text = Info.Text or "Label"
     Info.Color = Info.Color or Colors.PrimaryText
 
@@ -1050,7 +988,7 @@ function SectionTable:Label(Info)
     end
 
     return LabelTable
-end
+  end
 
 
 
@@ -1124,7 +1062,7 @@ end
 
 
 
-            
+			
 
 function SectionTable:ColorPicker(Info)
     Info.Text = Info.Text or "Pick a Color:"
@@ -1228,8 +1166,8 @@ end
 
 
 
-            
-function SectionTable:Dropdown(Info)
+			
+  function SectionTable:Dropdown(Info)
     Info.Text = Info.Text or "Dropdown"
     Info.Flag = Info.Flag or nil
     Info.Multi = Info.Multi or false
@@ -1333,7 +1271,7 @@ function SectionTable:Dropdown(Info)
     SizeX:GetPropertyChangedSignal("Value"):Connect(function()
         local Size = SizeX.Value / 2 - 14
         Dropdown.Size = UDim2.new(0, Size, 0, 21)
-    end)
+      end)
 
     Dropdown.DropdownFrame.MouseEnter:Connect(function()
         if not State then
@@ -1405,14 +1343,12 @@ function SectionTable:Dropdown(Info)
             if Info.ChangeText then
                 Dropdown.DropdownFrame.DropdownText.Text = ""
                 for i, z in pairs(MultiTable) do
-                    -- Korrekte Zeichenfolgenverkettung
-                    Dropdown.DropdownFrame.DropdownText.Text = Dropdown.DropdownFrame.DropdownText.Text .. (i ~= #MultiTable and z..", " or z)
+                    Dropdown.DropdownFrame.DropdownText.Text ..= i ~= #MultiTable and z..", " or z
                 end
                 if string.len(Dropdown.DropdownFrame.DropdownText.Text) == 0 then
                     Dropdown.DropdownFrame.DropdownText.Text = Info.Text
                 end
             end
-            
         else
             DropdownTable:Select(v.DropdownElementText.Text)
             DropdownTable:Toggle(false)
@@ -1504,15 +1440,15 @@ function SectionTable:Dropdown(Info)
     DropIndex = DropIndex - 1
 
     return DropdownTable
-end
+  end
 
-return SectionTable
-end
+  return SectionTable
+  end
+  
+  return TabTable
+  end
+  
+  return WindowTable
+  end
 
-return TabTable
-end
-
-return WindowTable
-end
-
-return library
+  return library
